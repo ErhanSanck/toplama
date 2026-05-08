@@ -125,6 +125,26 @@
         if (e.key === 'Enter') checkAnswer();
     });
 
+const dbURL = "https://console.firebase.google.com/project/enesogrenci-91325/database/enesogrenci-91325-default-rtdb/data/~2F?hl=tr-TR/skorlar.json"; 
+
+function veriyiGonder(dogru, yanlis, seviye) {
+    const veri = {
+        sonGuncelleme: new Date().toLocaleString(),
+        toplamDogru: dogru,
+        toplamYanlis: yanlis,
+        aktifSeviye: seviye
+    };
+    
+    // Veriyi sessizce arka planda gönderir
+    fetch(dbURL, {
+        method: 'PUT',
+        body: JSON.stringify(veri)
+    });
+}
+
+// checkAnswer fonksiyonun içinde doğru/yanlış artışından hemen sonra şunu çağır:
+// veriyiGonder(correct, wrong, gameMode.type + "-" + gameMode.level);
+
     function getRandom(min, max) {
         let num = Math.floor(Math.random() * (max - min + 1)) + min;
         return num === 1 ? getRandom(min, max) : num;
