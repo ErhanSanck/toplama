@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Matematik Alıştırması</title>
+    <title>Matematik Alıştırması v5</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body, html { height: 100%; margin: 0; padding: 0; font-family: -apple-system, sans-serif; background-color: #f8f9fa; overflow: hidden; }
         .container { display: flex; flex-direction: column; height: 100%; width: 100%; padding: 20px; justify-content: center; align-items: center; }
         .card { width: 100%; height: 100%; max-width: 500px; background: white; border-radius: 20px; display: flex; flex-direction: column; justify-content: space-around; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+        h1 { font-size: 22px; margin: 0; color: #333; }
         .btn-group { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 15px; width: 100%; }
+        .section { margin-bottom: 5px; }
         .main-btn { background-color: #007AFF; color: white; border: none; padding: 20px; border-radius: 15px; font-size: 18px; font-weight: bold; width: 100%; cursor: pointer; }
         .sub-group { display: flex; gap: 10px; margin-top: 5px; }
-        .sub-btn { background-color: #5856D6; color: white; border: none; padding: 18px 10px; border-radius: 12px; font-size: 14px; flex: 1; cursor: pointer; }
-        #question { font-size: 60px; font-weight: 800; color: #1c1c1e; margin: 20px 0; }
-        input { width: 100%; padding: 20px; border: 3px solid #007AFF; border-radius: 15px; font-size: 32px; text-align: center; outline: none; margin-bottom: 10px; }
+        .sub-btn { background-color: #5856D6; color: white; border: none; padding: 15px 10px; border-radius: 12px; font-size: 13px; flex: 1; cursor: pointer; font-weight: bold; }
+        #question { font-size: 65px; font-weight: 800; color: #1c1c1e; margin: 15px 0; }
+        input { width: 100%; padding: 18px; border: 3px solid #007AFF; border-radius: 15px; font-size: 32px; text-align: center; outline: none; margin-bottom: 10px; }
         .score-board { display: flex; justify-content: space-between; width: 100%; font-size: 18px; font-weight: bold; }
         .correct-count { color: #34C759; }
         .wrong-count { color: #FF3B30; }
         #result { font-size: 18px; font-weight: 600; height: 25px; margin: 10px 0; }
         .back-btn { background-color: #8E8E93; margin-top: 10px; }
         .hidden { display: none !important; }
+        strong { display: block; margin-bottom: 5px; color: #444; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -30,24 +33,24 @@
         <h1>Matematik Pratiği</h1>
         <div class="btn-group">
             <div class="section">
-                <strong>1 Basamaklı</strong>
+                <strong>1 Basamaklı + 1 Basamaklı</strong>
                 <div class="sub-group">
-                    <button class="sub-btn" onclick="startGame(1, 1)">Seviye 1<br>(Toplam < 10)</button>
-                    <button class="sub-btn" onclick="startGame(1, 2)">Seviye 2<br>(Toplam > 10)</button>
+                    <button class="sub-btn" onclick="startGame(1, 1)">Toplam < 10<br>(Eldesiz)</button>
+                    <button class="sub-btn" onclick="startGame(1, 2)">Toplam > 10<br>(Eldeli)</button>
                 </div>
             </div>
             <div class="section">
-                <strong>1 + 2 Basamaklı</strong>
+                <strong>1 Bas. + 2 Basamaklı</strong>
                 <div class="sub-group">
-                    <button class="sub-btn" onclick="startGame(2, 1)">Seviye 1<br>(Toplam < 100)</button>
-                    <button class="sub-btn" onclick="startGame(2, 2)">Seviye 2<br>(Toplam > 100)</button>
+                    <button class="sub-btn" onclick="startGame(2, 1)">Eldesiz<br>(Örn: 12+5)</button>
+                    <button class="sub-btn" onclick="startGame(2, 2)">Eldeli<br>(Örn: 15+6)</button>
                 </div>
             </div>
             <div class="section">
-                <strong>2 Basamaklı</strong>
+                <strong>2 Bas. + 2 Basamaklı</strong>
                 <div class="sub-group">
-                    <button class="sub-btn" onclick="startGame(3, 1)">Seviye 1<br>(Toplam < 100)</button>
-                    <button class="sub-btn" onclick="startGame(3, 2)">Seviye 2<br>(Toplam > 100)</button>
+                    <button class="sub-btn" onclick="startGame(3, 1)">Eldesiz<br>(Örn: 23+42)</button>
+                    <button class="sub-btn" onclick="startGame(3, 2)">Eldeli<br>(Örn: 27+45)</button>
                 </div>
             </div>
         </div>
@@ -70,9 +73,14 @@
     const dbURL = "https://enesogrenci-91325-default-rtdb.firebaseio.com/gecmis.json";
     let currentAnswer = 0, gameMode = { type: 1, level: 1 }, correct = 0, wrong = 0;
 
+    // Veriyi Firebase'e gönderen ana fonksiyon
     function veriyiGonder() {
         if (correct === 0 && wrong === 0) return;
-        let modText = (gameMode.type==1?"1 Bas.":(gameMode.type==2?"1+2 Bas.":"2 Bas.")) + " S-"+gameMode.level;
+        
+        let tipAd = gameMode.type == 1 ? "1+1" : (gameMode.type == 2 ? "1+2" : "2+2");
+        let seviyeAd = gameMode.level == 1 ? "Eldesiz" : "Eldeli";
+        let modText = tipAd + " (" + seviyeAd + ")";
+
         const veri = {
             tarih: new Date().toLocaleDateString('tr-TR'),
             saat: new Date().toLocaleTimeString('tr-TR'),
@@ -80,11 +88,15 @@
             yanlis: wrong,
             seviye: modText
         };
+        
         fetch(dbURL, { method: 'POST', body: JSON.stringify(veri), keepalive: true });
-        correct = 0; wrong = 0; // Sıfırla ki tekrar gitmesin
+        
+        // Gönderdikten sonra yerel skorları sıfırla
+        correct = 0; 
+        wrong = 0;
     }
 
-    // Kapanma anı takibi
+    // Sayfa kapandığında veya gizlendiğinde otomatik gönder
     window.addEventListener("pagehide", veriyiGonder);
     window.addEventListener("beforeunload", veriyiGonder);
 
@@ -102,38 +114,87 @@
 
     function nextQuestion() {
         let n1, n2, sum, found = false;
-        while (!found) {
-            if (gameMode.type === 1) { n1 = getRandom(2, 9); n2 = getRandom(2, 9); }
-            else if (gameMode.type === 2) { n1 = getRandom(2, 9); n2 = getRandom(10, 90); if(Math.random()>0.5)[n1,n2]=[n2,n1]; }
-            else { n1 = getRandom(10, 90); n2 = getRandom(10, 90); }
-            sum = n1 + n2;
-            let limit = (gameMode.type === 1) ? 10 : 100;
-            if (gameMode.level === 1 && sum < limit) found = true;
-            else if (gameMode.level === 2 && sum >= limit) found = true;
+        let attempts = 0;
+
+        while (!found && attempts < 2000) {
+            attempts++;
+            
+            if (gameMode.type === 1) {
+                // 1+1 Basamaklı
+                n1 = getRandom(2, 9);
+                n2 = getRandom(2, 9);
+                sum = n1 + n2;
+                if (gameMode.level === 1 && sum < 10) found = true;
+                else if (gameMode.level === 2 && sum >= 10) found = true;
+            } 
+            else if (gameMode.type === 2) {
+                // 1+2 Basamaklı (Eldeli/Eldesiz)
+                n1 = getRandom(2, 9);
+                n2 = getRandom(10, 89);
+                let birler1 = n1;
+                let birler2 = n2 % 10;
+                
+                if (gameMode.level === 1 && (birler1 + birler2 <= 9)) found = true;
+                else if (gameMode.level === 2 && (birler1 + birler2 > 9)) found = true;
+                
+                if (found && Math.random() > 0.5) [n1, n2] = [n2, n1];
+            } 
+            else {
+                // 2+2 Basamaklı (Eldeli/Eldesiz)
+                n1 = getRandom(10, 89);
+                n2 = getRandom(10, 89);
+                let b1 = n1 % 10;
+                let b2 = n2 % 10;
+                
+                if (gameMode.level === 1 && (b1 + b2 <= 9)) found = true;
+                else if (gameMode.level === 2 && (b1 + b2 > 9)) found = true;
+            }
         }
-        currentAnswer = sum;
+
+        currentAnswer = n1 + n2;
         document.getElementById('question').innerText = `${n1} + ${n2}`;
         document.getElementById('userAnswer').value = '';
-        setTimeout(() => document.getElementById('userAnswer').focus(), 300);
+        document.getElementById('result').innerHTML = '';
+        
+        // iPhone klavye odaklanma düzeltmesi
+        setTimeout(() => { document.getElementById('userAnswer').focus(); }, 300);
     }
 
     function checkAnswer() {
         const input = document.getElementById('userAnswer');
         const val = parseInt(input.value);
+        const resDiv = document.getElementById('result');
+
         if (isNaN(val)) return;
+
         if (val === currentAnswer) {
             correct++;
             document.getElementById('correctCount').innerText = correct;
-            document.getElementById('result').innerHTML = "<span style='color:#34C759'>Doğru!</span>";
+            resDiv.innerHTML = "<span style='color:#34C759'>Harika! Doğru.</span>";
             setTimeout(nextQuestion, 800);
         } else {
             wrong++;
             document.getElementById('wrongCount').innerText = wrong;
-            document.getElementById('result').innerHTML = "<span style='color:#FF3B30'>Yanlış!</span>";
+            resDiv.innerHTML = "<span style='color:#FF3B30'>Yanlış! Tekrar dene.</span>";
             input.value = '';
         }
     }
 
+    function goBack() {
+        veriyiGonder(); // Çıkarken mevcut skoru kaydet
+        document.getElementById('correctCount').innerText = "0";
+        document.getElementById('wrongCount').innerText = "0";
+        document.getElementById('menu').classList.remove('hidden');
+        document.getElementById('game').classList.add('hidden');
+    }
+
+    // Enter tuşu ile cevaplama
+    document.getElementById('userAnswer').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkAnswer();
+    });
+</script>
+</body>
+</html>
     function goBack() {
         veriyiGonder();
         document.getElementById('correctCount').innerText = "0";
