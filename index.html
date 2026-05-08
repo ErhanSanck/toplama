@@ -125,19 +125,20 @@
         if (e.key === 'Enter') checkAnswer();
     });
 
-const dbURL = "https://enesogrenci-91325-default-rtdb.firebaseio.com/skorlar.json"; 
+const dbURL = "https://enesogrenci-91325-default-rtdb.firebaseio.com/gecmis.json"; 
 
-function veriyiGonder(dogru, yanlis, seviye) {
+function veriyiGonder(dogru, yanlis, mod) {
     const veri = {
-        sonGuncelleme: new Date().toLocaleString(),
-        toplamDogru: dogru,
-        toplamYanlis: yanlis,
-        aktifSeviye: seviye
+        tarih: new Date().toLocaleDateString('tr-TR'),
+        saat: new Date().toLocaleTimeString('tr-TR'),
+        dogru: dogru,
+        yanlis: yanlis,
+        seviye: mod
     };
     
     // Veriyi sessizce arka planda gönderir
     fetch(dbURL, {
-        method: 'PUT',
+        method: 'POST',
         body: JSON.stringify(veri)
     });
 }
