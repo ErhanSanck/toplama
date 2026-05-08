@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobil Matematik v4</title>
+    <style>
+        /* Tam Ekran ve Mobil Ayarları */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { 
+            height: 100%; margin: 0; padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f8f9fa; overflow: hidden;
+        }
+
+        .container {
+            display: flex; flex-direction: column; height: 100%; width: 100%;
+            padding: 20px; justify-content: center; align-items: center;
+        }
+
+        .card {
+            width: 100%; height: 100%; max-width: 500px;
+            background: white; border-radius: 20px;
+            display: flex; flex-direction: column; justify-content: space-around;
+            padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        h1 { font-size: 24px; margin: 0; color: #333; }
+
+        /* Buton Grubu - Ekranı Kaplayacak Şekilde */
+        .btn-group { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 15px; width: 100%; }
+        
+        .main-btn {
+            background-color: #007AFF; color: white; border: none;
+            padding: 20px; border-radius: 15px; font-size: 18px; font-weight: bold;
+            width: 100%; cursor: pointer; transition: 0.2s;
+        }
+
+        .sub-group { display: flex; gap: 10px; margin-top: 5px; }
+        .sub-btn {
+            background-color: #5856D6; color: white; border: none;
+            padding: 18px 10px; border-radius: 12px; font-size: 14px; flex: 1;
+        }
+
+        /* Oyun Ekranı */
+        #question { font-size: 60px; font-weight: 800; color: #1c1c1e; margin: 20px 0; }
+        
+        input {
+            width: 100%; padding: 20px; border: 3px solid #007AFF;
+            border-radius: 15px; font-size: 32px; text-align: center;
+            outline: none; margin-bottom: 10px;
+            /* iPhone Zoom Engelleme: Font en az 16px olmalı */
+        }
+
+        .score-board {
+            display: flex; justify-content: space-between; width: 100%;
+            font-size: 18px; font-weight: bold; margin-bottom: 10px;
+        }
+        .correct-count { color: #34C759; }
+        .wrong-count { color: #FF3B30; }
+
+        #result { font-size: 18px; font-weight: 600; height: 25px; margin: 10px 0; }
+        .back-btn { background-color: #8E8E93; margin-top: 10px; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ANA MENÜ -->
+    <div id="menu" class="card">
+        <h1>Matematik Pratiği</h1>
+        <div class="btn-group">
+            <div class="section">
+                <strong>1 Basamaklı</strong>
+                <div class="sub-group">
+                    <button class="sub-btn" onclick="startGame(1, 1)">Seviye 1<br>(Toplam < 10)</button>
+                    <button class="sub-btn" onclick="startGame(1, 2)">Seviye 2<br>(Toplam > 10)</button>
+                </div>
+            </div>
+            <div class="section">
+                <strong>1 + 2 Basamaklı</strong>
+                <div class="sub-group">
+                    <button class="sub-btn" onclick="startGame(2, 1)">Seviye 1<br>(Toplam < 100)</button>
+                    <button class="sub-btn" onclick="startGame(2, 2)">Seviye 2<br>(Toplam > 100)</button>
+                </div>
+            </div>
+            <div class="section">
+                <strong>2 Basamaklı</strong>
+                <div class="sub-group">
+                    <button class="sub-btn" onclick="startGame(3, 1)">Seviye 1<br>(Toplam < 100)</button>
+                    <button class="sub-btn" onclick="startGame(3, 2)">Seviye 2<br>(Toplam > 100)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OYUN EKRANI -->
+    <div id="game" class="card hidden">
+        <div class="score-board">
+            <span class="correct-count">Doğru: <span id="correctCount">0</span></span>
+            <span class="wrong-count">Yanlış: <span id="wrongCount">0</span></span>
+        </div>
+
+        <div id="question"></div>
+        
+        <!-- pattern ve inputmode iPhone'da sayı klavyesini açar -->
+        <input type="number" id="userAnswer" inputmode="numeric" pattern="[0-9]*" placeholder="?">
+        
+        <button class="main-btn" onclick="checkAnswer()">CEVAPLA</button>
+        <div id="result"></div>
+        <button class="main-btn back-btn" onclick="goBack()">MENÜYE DÖN</button>
+    </div>
+</div>
+
+<script>
+    let currentAnswer = 0;
+    let gameMode = { type: 1, level: 1 };
+    let correct = 0;
+    let wrong = 0;
+
+    // Enter tuşu desteği
+    document.getElementById('userAnswer').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') checkAnswer();
+    });
+
+    function getRandom(min, max) {
+        let num = Math.floor(Math.random() * (max - min + 1)) + min;
+        return num === 1 ? getRandom(min, max) : num;
+    }
+
+    function startGame(type, level) {
+        gameMode = { type, level };
+        document.getElementById('menu').classList.add('hidden');
+        document.getElementById('game').classList.remove('hidden');
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        let n1, n2, sum;
+        let found = false;
+        let attempts = 0;
+
+        while (!found && attempts < 500) {
+            attempts++;
+            if (gameMode.type === 1) {
+                n1 = getRandom(2, 9); n2 = getRandom(2, 9);
+            } else if (gameMode.type === 2) {
+                n1 = getRandom(2, 9); n2 = getRandom(10, 90);
+                if(Math.random() > 0.5) [n1, n2] = [n2, n1];
+            } else {
+                n1 = getRandom(10, 90); n2 = getRandom(10, 90);
+            }
+            sum = n1 + n2;
+            let limit = (gameMode.type === 1) ? 10 : 100;
+            if (gameMode.level === 1 && sum < limit) found = true;
+            else if (gameMode.level === 2 && sum >= limit) found = true;
+        }
+
+        currentAnswer = sum;
+        document.getElementById('question').innerText = `${n1} + ${n2}`;
+        document.getElementById('userAnswer').value = '';
+        document.getElementById('result').innerText = '';
+        
+        // iPhone klavye focus sorunu için kısa bir gecikme
+        setTimeout(() => { document.getElementById('userAnswer').focus(); }, 300);
+    }
+
+    function checkAnswer() {
+        const input = document.getElementById('userAnswer');
+        const val = parseInt(input.value);
+        const resDiv = document.getElementById('result');
+
+        if (isNaN(val)) return;
+
+        if (val === currentAnswer) {
+            correct++;
+            document.getElementById('correctCount').innerText = correct;
+            resDiv.innerHTML = "<span style='color:#34C759'>Harika! Yeni soru...</span>";
+            setTimeout(nextQuestion, 800);
+        } else {
+            wrong++;
+            document.getElementById('wrongCount').innerText = wrong;
+            resDiv.innerHTML = "<span style='color:#FF3B30'>Yanlış! Tekrar dene.</span>";
+            input.value = '';
+        }
+    }
+
+    function goBack() {
+        correct = 0; wrong = 0;
+        document.getElementById('correctCount').innerText = "0";
+        document.getElementById('wrongCount').innerText = "0";
+        document.getElementById('menu').classList.remove('hidden');
+        document.getElementById('game').classList.add('hidden');
+    }
+</script>
+
+</body>
+</html>
