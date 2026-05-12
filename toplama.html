@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Matematik Dünyası v7</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { height: 100%; margin: 0; padding: 0; font-family: -apple-system, sans-serif; background-color: #f0f2f5; overflow: hidden; }
+        .container { display: flex; flex-direction: column; height: 100%; width: 100%; padding: 15px; justify-content: center; align-items: center; }
+        .card { width: 100%; height: 100%; max-width: 500px; background: white; border-radius: 25px; display: flex; flex-direction: column; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        
+        .tab-group { display: flex; gap: 5px; margin-bottom: 15px; background: #eee; padding: 5px; border-radius: 15px; }
+        .tab-btn { flex: 1; padding: 12px 5px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 11px; }
+        .tab-btn.active { background: #007AFF; color: white; }
+
+        .btn-group { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; width: 100%; overflow-y: auto; }
+        .section { background: #f8f9fa; padding: 10px; border-radius: 15px; border: 1px solid #e5e5ea; }
+        .sub-group { display: flex; gap: 8px; margin-top: 5px; }
+        .sub-btn { background-color: #5856D6; color: white; border: none; padding: 12px 5px; border-radius: 10px; font-size: 12px; flex: 1; cursor: pointer; font-weight: 600; }
+        
+        #question { font-size: 50px; font-weight: 800; color: #1c1c1e; margin: 10px 0; min-height: 70px; }
+        input { width: 100%; padding: 15px; border: 3px solid #007AFF; border-radius: 15px; font-size: 30px; text-align: center; outline: none; margin-bottom: 10px; }
+        .main-btn { background-color: #34C759; color: white; border: none; padding: 18px; border-radius: 15px; font-size: 18px; font-weight: bold; width: 100%; cursor: pointer; }
+        .score-board { display: flex; justify-content: space-between; width: 100%; font-size: 16px; font-weight: bold; margin-bottom: 5px; }
+        .back-btn { background-color: #8E8E93; margin-top: 10px; padding: 12px; }
+        .hidden { display: none !important; }
+        strong { font-size: 13px; color: #444; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="menu" class="card">
+        <div class="tab-group">
+            <button class="tab-btn active" onclick="switchTab('toplama')">TOPLAMA</button>
+            <button class="tab-btn" onclick="switchTab('cikarma')">ÇIKARMA</button>
+            <button class="tab-btn" onclick="switchTab('carpma')">ÇARPMA</button>
+            <button class="tab-btn" onclick="switchTab('bolme')">BÖLME</button>
+        </div>
+
+        <div id="tab-toplama" class="op-menu">
+            <div class="btn-group">
+                <div class="section"><strong>1+1 Basamak</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('+', 1, 1)">Eldesiz</button>
+                    <button class="sub-btn" onclick="startGame('+', 1, 2)">Eldeli</button>
+                </div></div>
+                <div class="section"><strong>1+2 Basamak</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('+', 2, 1)">Eldesiz</button>
+                    <button class="sub-btn" onclick="startGame('+', 2, 2)">Eldeli</button>
+                </div></div>
+                <div class="section"><strong>2+2 Basamak</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('+', 3, 1)">Eldesiz</button>
+                    <button class="sub-btn" onclick="startGame('+', 3, 2)">Eldeli</button>
+                </div></div>
+            </div>
+        </div>
+
+        <div id="tab-cikarma" class="op-menu hidden">
+            <div class="btn-group">
+                <div class="section"><strong>2 Bas. - 1 Bas.</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('-', 1, 1)">Bozmadan</button>
+                    <button class="sub-btn" onclick="startGame('-', 1, 2)">Onluk Bozma</button>
+                </div></div>
+                <div class="section"><strong>2 Bas. - 2 Bas.</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('-', 2, 1)">Bozmadan</button>
+                    <button class="sub-btn" onclick="startGame('-', 2, 2)">Onluk Bozma</button>
+                </div></div>
+            </div>
+        </div>
+
+        <div id="tab-carpma" class="op-menu hidden">
+            <div class="btn-group">
+                <div class="section"><strong>1 Bas. x 1 Bas.</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('*', 1, 1)">Basit</button>
+                    <button class="sub-btn" onclick="startGame('*', 1, 2)">Zor</button>
+                </div></div>
+                <div class="section"><strong>1 Bas. x 2 Bas.</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('*', 2, 1)">Tümü</button>
+                </div></div>
+                <div class="section"><strong>2 Bas. x 2 Bas.</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('*', 3, 1)">Tümü</button>
+                </div></div>
+            </div>
+        </div>
+
+        <div id="tab-bolme" class="op-menu hidden">
+            <div class="btn-group">
+                <div class="section"><strong>Kalansız Bölme</strong><div class="sub-group">
+                    <button class="sub-btn" onclick="startGame('/', 1, 1)">Basit</button>
+                    <button class="sub-btn" onclick="startGame('/', 1, 2)">Zor</button>
+                </div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="game" class="card hidden">
+        <div class="score-board">
+            <span style="color:#34C759">Doğru: <span id="correctCount">0</span></span>
+            <span style="color:#FF3B30">Yanlış: <span id="wrongCount">0</span></span>
+        </div>
+        <div id="question"></div>
+        <input type="number" id="userAnswer" inputmode="numeric" pattern="[0-9]*">
+        <button class="main-btn" onclick="checkAnswer()">CEVAPLA</button>
+        <div id="result"></div>
+        <button class="main-btn back-btn" onclick="goBack()">MENÜYE DÖN</button>
+    </div>
+</div>
+
+<script>
+    const dbBaseURL = "https://enesogrenci-91325-default-rtdb.firebaseio.com/gecmis";
+    let currentSessionKey = null, currentAnswer = 0, correct = 0, wrong = 0;
+    let gameConfig = { op: '+', type: 1, level: 1 };
+
+    function switchTab(op) {
+        document.querySelectorAll('.op-menu').forEach(m => m.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + op).classList.remove('hidden');
+        event.currentTarget.classList.add('active');
+    }
+
+    function veriyiAnlikGuncelle() {
+        if (!currentSessionKey) return;
+        const veri = {
+            tarih: new Date().toLocaleDateString('tr-TR'),
+            saat: new Date().toLocaleTimeString('tr-TR'),
+            dogru: correct, yanlis: wrong,
+            seviye: `${gameConfig.op} Tip:${gameConfig.type} S:${gameConfig.level}`
+        };
+        fetch(`${dbBaseURL}/${currentSessionKey}.json`, { method: 'PUT', body: JSON.stringify(veri) });
+    }
+
+    function startGame(op, type, level) {
+        gameConfig = { op, type, level };
+        correct = 0; wrong = 0;
+        currentSessionKey = "oturum_" + Date.now();
+        document.getElementById('correctCount').innerText = "0";
+        document.getElementById('wrongCount').innerText = "0";
+        document.getElementById('menu').classList.add('hidden');
+        document.getElementById('game').classList.remove('hidden');
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        let n1, n2, found = false;
+        while (!found) {
+            if (gameConfig.op === '+') {
+                if (gameConfig.type === 1) { n1 = getRandom(2,9); n2 = getRandom(2,9); if (gameConfig.level === 1 ? n1+n2 < 10 : n1+n2 >= 10) found = true; }
+                else if (gameConfig.type === 2) { n1 = getRandom(2,9); n2 = getRandom(10,89); if (gameConfig.level === 1 ? (n1+(n2%10) <= 9) : (n1+(n2%10) > 9)) found = true; if(found && Math.random()>0.5)[n1,n2]=[n2,n1]; }
+                else { n1 = getRandom(11,89); n2 = getRandom(11,89); if (gameConfig.level === 1 ? (n1%10)+(n2%10) <= 9 : (n1%10)+(n2%10) > 9) found = true; }
+            } 
+            else if (gameConfig.op === '-') {
+                if (gameConfig.type === 1) { // 2 Bas - 1 Bas
+                    n1 = getRandom(11,99); n2 = getRandom(2,9);
+                    if (gameConfig.level === 1 ? (n1%10 >= n2) : (n1%10 < n2)) found = true;
+                } else { // 2 Bas - 2 Bas
+                    n1 = getRandom(20,99); n2 = getRandom(11, n1-1);
+                    if (gameConfig.level === 1 ? (n1%10 >= n2%10) : (n1%10 < n2%10)) found = true;
+                }
+            } 
+            else if (gameConfig.op === '*') {
+                if (gameConfig.type === 1) { n1 = gameConfig.level===1?getRandom(2,5):getRandom(6,9); n2 = getRandom(2,9); found = true; }
+                else if (gameConfig.type === 2) { n1 = getRandom(2,9); n2 = getRandom(11,50); found = true; if(Math.random()>0.5)[n1,n2]=[n2,n1]; }
+                else { n1 = getRandom(11,25); n2 = getRandom(11,25); found = true; }
+            } 
+            else if (gameConfig.op === '/') {
+                n2 = gameConfig.level===1?getRandom(2,5):getRandom(6,12);
+                n1 = n2 * getRandom(2,12); found = true;
+            }
+        }
+        currentAnswer = eval(`${n1}${gameConfig.op}${n2}`);
+        document.getElementById('question').innerText = `${n1} ${gameConfig.op.replace('*','×').replace('/','÷')} ${n2}`;
+        document.getElementById('userAnswer').value = '';
+        setTimeout(() => document.getElementById('userAnswer').focus(), 300);
+    }
+
+    function getRandom(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function checkAnswer() {
+        const val = parseInt(document.getElementById('userAnswer').value);
+        if (isNaN(val)) return;
+        if (val === currentAnswer) {
+            correct++; document.getElementById('result').innerHTML = "✅";
+            document.getElementById('correctCount').innerText = correct;
+            veriyiAnlikGuncelle(); setTimeout(nextQuestion, 600);
+        } else {
+            wrong++; document.getElementById('result').innerHTML = "❌";
+            document.getElementById('wrongCount').innerText = wrong;
+            veriyiAnlikGuncelle(); document.getElementById('userAnswer').value = '';
+        }
+    }
+
+    function goBack() {
+        currentSessionKey = null;
+        document.getElementById('menu').classList.remove('hidden');
+        document.getElementById('game').classList.add('hidden');
+    }
+
+    document.getElementById('userAnswer').addEventListener('keypress', (e) => { if (e.key === 'Enter') checkAnswer(); });
+</script>
+</body>
+</html>
